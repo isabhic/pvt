@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Pvt ASH ~</title>
+<style>
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  :root {
+    --glass: rgba(255,255,255,0.1);
+    --accent: #00ff9f;
+    --accent-2: #00c6ff;
+    --text-color: #f0faff;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(-45deg, #0a699f, #08527d, #063c5c, #04253a, #02101f);
+    background-size: 400% 400%;
+    animation: gradientBG 16s ease infinite;
+    color: var(--text-color);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .top-right {
+    position: fixed;
+    right: 18px;
+    top: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 40;
+  }
+  .dev-badge, .admin-link {
+    padding: 8px 12px;
+    border-radius: 14px;
+    backdrop-filter: blur(8px);
+    background: rgba(255,255,255,0.2);
+    color: var(--text-color);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .admin-link:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.05);
+  }
+  .page {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    transition: opacity .45s ease, transform .45s ease;
+  }
+  .hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(.995);
+  }
+  .visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .home-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+  .app-title {
+    font-size: 56px;
+    font-weight: bold;
+    color: var(--text-color);
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+  }
+  .card {
+    background: var(--glass);
+    backdrop-filter: blur(14px);
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    max-width: 520px;
+    width: 100%;
+  }
+  .glassy-btn {
+    padding: 14px 32px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+  }
+  .glassy-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.05);
+  }
+  .field, .text {
+    width: 100%;
+    padding: 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    color: var(--text-color);
+    outline: none;
+    backdrop-filter: blur(8px);
+    font-size: 15px;
+  }
+  .chat-wrap {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 22px;
+    width: 100%;
+    max-width: 980px;
+    z-index: 30;
+  }
+  .chat-window {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    background: rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 60px rgba(0,0,0,0.4);
+    flex-direction: column;
+  }
+  .left-col {
+    width: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #08527d, #0a699f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--text-color);
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  }
+  .thread {
+    flex: 1;
+    max-height: 340px;
+    overflow: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .msg {
+    max-width: 74%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .me {
+    align-self: flex-end;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    color: var(--text-color);
+  }
+  .them {
+    align-self: flex-start;
+    background: rgba(255,255,255,0.2);
+    color: var(--text-color);
+  }
+  .meta {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-bottom: 6px;
+    color: #e0f7ff;
+  }
+  .compose {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .send {
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: none;
+    background: var(--accent);
+    color: #012;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .status {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 8px;
+    border: 2px solid rgba(0,0,0,0.15);
+  }
+  .online {
+    background: #2eea69;
+  }
+  .offline {
+    background: #ff6b6b;
+  }
+  .admin-panel {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 980px;
+  }
+  .sidebar {
+    width: 240px;
+    background: rgba(255,255,255,0.1);
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 320px;
+    backdrop-filter: blur(10px);
+  }
+  .content {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    padding: 12px;
+    border-radius: 10px;
+    min-height: 320px;
+    backdrop-filter: blur(10px);
+  }
+  .menu-btn {
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    text-align: left;
+    transition: background .3s ease, transform .2s ease;
+  }
+  .menu-btn.active {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.02);
+  }
+  .row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .muted {
+    opacity: 0.85;
+    font-size: 13px;
+    color: #dfefff;
+  }
+  @media(max-width:760px) {
+    .left-col {
+      display: none;
+    }
+    .chat-window {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .thread {
+      max-height: 48vh;
+    }
+    .sidebar {
+      width: 100%;
+    }
+    .admin-panel {
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top-right dev + admin -->
+<div class="top-right">
+  <div class="dev-badge" id="devBadge">dev : ash ~</div>
+  <div class="admin-link" id="openAdminTop">Admin Panel</div>
+</div>
+
+<!-- HOME PAGE -->
+<section id="homePage" class="page visible">
+  <div class="home-center">
+    <div class="app-title" id="appTitle">ash~</div>
+    <div class="card center" style="text-align:center;">
+      <button class="glassy-btn" id="openChatBtn">Wanna Join Chat?</button>
+    </div>
+  </div>
+</section>
+
+<!-- CHAT LOGIN PAGE -->
+<section id="chatLoginPage" class="page hidden">
+  <div class="card center">
+    <h2 style="text-align:center;">Join Chat</h2>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+      <input id="nameInput" class="field" placeholder="Your name (manual)">
+      <input id="keyInput" class="field" placeholder="Chat key (from admin)">
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="glassy-btn" id="joinBtn">Join </button>
+        <button class="glassy-btn" id="chatBackBtn">Back</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHAT ROOM PAGE -->
+<section id="chatRoomPage" class="page hidden">
+  <div style="width:100%;max-width:980px;margin-top:18px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="avatar" id="roomAvatar">ASH</div>
+        <div>
+          <div id="roomTitle">Room</div>
+          <div id="roomUser" class="muted">—</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div id="roomStatus" class="muted">Status:</div>
+        <div id="roomDot" class="status offline"></div>
+        <button class="glassy-btn" id="leaveChatBtn">Leave</button>
+      </div>
+    </div>
+
+    <div class="chat-wrap">
+      <div class="chat-window card">
+        <div class="left-col">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div class="avatar" id="leftAvatar">PVT</div>
+            <div>
+              <div id="leftRoomTitle">Room</div>
+              <div id="leftPeer" class="muted">—</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;">Peer: <span id="peerStatusText">—</span></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;flex:1;">
+          <div class="thread" id="thread"></div>
+
+          <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+            <input class="text" id="textIn" placeholder="Type a message..." />
+            <button class="send" id="sendBtn">Send</button>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center;justify-content:flex-end;">
+            <button class="glassy-btn" id="recordBtn">Record</button>
+            <button class="glassy-btn" id="attachBtn">Attach (audio)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ADMIN PAGE -->
+<section id="adminPage" class="page hidden">
+  <div class="card admin-panel">
+    <div class="sidebar">
+      <button class="menu-btn active" data-tab="login">Admin Login</button>
+      <button class="menu-btn" data-tab="create">Create Key</button>
+      <button class="menu-btn" data-tab="active">Active Keys</button>
+      <button class="menu-btn" data-tab="change">Change Admin Key</button>
+      <button class="menu-btn" data-tab="back">Back</button>
+      <div class="muted" style="margin-top:6px">Admin: create keys, view devices, change admin key.</div>
+    </div>
+    <div class="content" id="adminContent">
+      <div id="adminLoginBox" class="fade-in">
+        <h3>Admin Login</h3>
+        <div class="row" style="margin-top:8px;">
+          <input id="adminKeyInput" class="field" placeholder="Admin key (default vxnihba)">
+          <button class="glassy-btn" id="adminLoginBtn">Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// Config
+const CONFIG = {
+  APP_NAME: "ash~",
+  DEV_NAME: "ash ~",
+};
+
+document.getElementById('appTitle').innerText = CONFIG.APP_NAME;
+document.getElementById('devBadge').innerText = 'dev : ' + CONFIG.DEV_NAME;
+
+// Helpers
+const el = id => document.getElementById(id);
+const deviceId = localStorage.getItem('pvt_device') || ('d_' + Math.random().toString(36).slice(2,9));
+localStorage.setItem('pvt_device', deviceId);
+let state = { me:null, activeKey:null, lastTs:0, adminKey:null, adminLogged:false, pollId:null };
+
+function showPage(id){
+  ['homePage','chatLoginPage','chatRoomPage','adminPage'].forEach(p=>{
+    const node = el(p);
+    if(!node) return;
+    if(p === id){
+      node.classList.remove('hidden');
+      node.classList.add('visible');
+    } else {
+      node.classList.remove('visible');
+      node.classList.add('hidden');
+    }
+  });
+  window.scrollTo(0,0);
+}
+
+// Navigation
+el('openChatBtn').addEventListener('click', ()=> showPage('chatLoginPage'));
+el('chatBackBtn').addEventListener('click', ()=> showPage('homePage'));
+
+el('joinBtn').addEventListener('click', async ()=>{
+  const name = el('nameInput').value.trim();
+  const key = el('keyInput').value.trim();
+  if(!name || !key) return alert('Enter name and key');
+  try {
+    const res = await fetch('/api/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,key,device_id:deviceId})});
+    const j = await res.json();
+    if(!j.ok) return alert(j.error || 'Join failed');
+    state.me = {name, key};
+    state.activeKey = key;
+    state.lastTs = 0;
+    el('roomTitle').textContent = 'Room: ' + key;
+    el('roomUser').textContent = name;
+    el('roomAvatar').textContent = name.split(' ')[0].slice(0,3).toUpperCase();
+    el('leftPeer').textContent = '—';
+    showPage('chatRoomPage');
+    startPolling();
+  } catch(e) {
+    alert('Network error');
+  }
+});
+
+el('leaveChatBtn').addEventListener('click', ()=>{
+  stopPolling();
+  state.me = null;
+  state.activeKey = null;
+  state.lastTs = 0;
+  el('thread').innerHTML = '';
+  showPage('homePage');
+});
+
+el('sendBtn').addEventListener('click', sendText);
+function sendText(){
+  const t = el('textIn').value.trim();
+  if(!t) return;
+  sendMessage({type:'text', content:t});
+  el('textIn').value = '';
+}
+
+async function sendMessage(msg){
+  if(!state.me || !state.activeKey) return alert('Join first');
+  const payload = { key: state.activeKey, device_id: deviceId, name: state.me.name, type: msg.type||'text', content: msg.content||msg.text||'' };
+  try {
+    const res = await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const j = await res.json();
+    if(!j.ok) return alert(j.error||'send failed');
+    fetchMessages();
+  } catch(e){
+    alert('Network error');
+  }
+}
+
+function renderMessage(m){
+  const thread = el('thread');
+  const div = document.createElement('div');
+  div.className = 'msg ' + (m.device_id === deviceId ? 'me' : 'them');
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.textContent = (m.name || (m.device_id === deviceId ? 'You':'Peer')) + ' • ' + new Date(m.ts*1000).toLocaleTimeString();
+  const body = document.createElement('div');
+  if(m.type === 'voice'){
+    const audio = document.createElement('audio');
+    audio.controls = true;
+    audio.src = m.content;
+    body.appendChild(audio);
+  } else {
+    body.textContent = m.content || m.text || '';
+  }
+  div.appendChild(meta);
+  div.appendChild(body);
+  thread.appendChild(div);
+  thread.scrollTop = thread.scrollHeight;
+}
+
+async function fetchMessages(){
+  if(!state.activeKey) return;
+  try {
+    const res = await fetch(`/api/messages?key=${encodeURIComponent(state.activeKey)}&since=${state.lastTs}`);
+    const j = await res.json();
+    if(!j.ok) return;
+    const msgs = j.messages || [];
+    if(msgs.length){
+      msgs.forEach(m=> renderMessage(m));
+      state.lastTs = msgs[msgs.length-1].ts + 1;
+    }
+    fetchPeerInfo();
+  } catch(e){}
+}
+
+function startPolling(){
+  stopPolling();
+  fetchMessages();
+  pingLoop();
+  state.pollId = setInterval(()=>{
+    fetchMessages();
+    pingLoop();
+  },2000);
+}
+
+function stopPolling(){
+  if(state.pollId) clearInterval(state.pollId);
+  state.pollId = null;
+}
+
+function pingLoop(){
+  if(!state.activeKey) return;
+  fetch('/api/ping',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device_id:deviceId, key:state.activeKey})}).catch(()=>{});
+}
+
+async function fetchPeerInfo(){
+  if(!state.activeKey) return;
+  try {
+    const res = await fetch(`/api/devices?key=${encodeURIComponent(state.activeKey)}`);
+    const j = await res.json();
+    if(!j.ok) return;
+    const devs = j.devices || [];
+    const others = devs.filter(d=> d.device_id !== deviceId);
+    if(others.length>0){
+      el('peerStatusText').textContent = others[0].name || 'peer';
+      const last = others[0].last_seen || 0;
+      const alive = (Date.now()/1000 - last) < 10;
+      el('roomDot').className = 'status ' + (alive ? 'online' : 'offline');
+    } else {
+      el('peerStatusText').textContent = '—';
+      el('roomDot').className = 'status offline';
+    }
+  } catch(e){}
+}
+
+// Admin panel functions
+document.querySelectorAll('.sidebar .menu-btn').forEach(b=> b.addEventListener('click', (e)=>{
+  document.querySelectorAll('.sidebar .menu-btn').forEach(x=>x.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  const tab = e.currentTarget.getAttribute('data-tab');
+  loadAdminTab(tab);
+}));
+
+async function loadAdminTab(tab){
+  const content = el('adminContent');
+  content.innerHTML = '';
+  if(tab === 'login'){
+    content.innerHTML = `<div id="adminLoginBox" class="fade-in"><h3>Admin Login</h3><div class="row" style="margin-top:8px"><input id="adminKeyInput" class="field" placeholder="Admin key (default vxnihba)"><button class="glassy-btn" id="adminLoginBtn">Login</button></div></div>`;
+    el('adminLoginBtn').addEventListener('click', doAdminLogin);
+  } else if(tab === 'create'){
+    await ensureAdmin();
+    content.innerHTML = `<h3>Create Key</h3><div style="margin-top:8px" class="row"><input id="newKey" class="field" placeholder="enter key"><button class="glassy-btn" id="createKeyBtn">Create</button></div><div id="createRes" style="margin-top:8px"></div>`;
+    el('createKeyBtn').addEventListener('click', async ()=>{
+      const k = el('newKey').value.trim();
+      if(!k) return alert('enter key');
+      try{
+        const res = await fetch('/api/admin/create_key',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key': state.adminKey},body:JSON.stringify({key:k})});
+        const j = await res.json();
+        el('createRes').textContent = j.ok ? ('Created '+k) : (j.error || 'error');
+      }catch(e){
+        el('createRes').textContent = 'network error';
+      }
+    });
+  } else if(tab === 'active'){
+    await ensureAdmin();
+    content.innerHTML = `<h3>Active Keys</h3><div id="actList" style="margin-top:8px"></div>`;
+    try{
+      const res = await fetch('/api/admin/get_keys',{headers:{'X-Admin-Key': state.adminKey}});
+      const j = await res.json();
+      if(!j.ok){
+        el('actList').textContent = j.error || 'error';
+        return;
+      }
+      const list = j.keys || [];
+      el('actList').innerHTML = list.map(k=>{
+        const devs = (k.devices||[]).map(d=>`${d.name} (${d.device_id.slice(0,6)}) @ ${d.last_seen? new Date(d.last_seen*1000).toLocaleTimeString() : '-'}`).join('<br>');
+        return `<div style="padding:8px;border-radius:8px;background:rgba(255,255,255,0.2);margin-bottom:8px"><b>${k.key}</b><div style="margin-top:6px">${devs || '<i>no devices</i>'}</div></div>`;
+      }).join('');
+    } catch(e){
+      el('actList').textContent = 'network error';
+    }
+  } else if(tab === 'change'){
+    await ensureAdmin();
+    content.innerHTML = `<h3>Change Admin Key</h3><div class="row" style="margin-top:8px"><input id="curAdmin" class="field" placeholder="current admin key"><input id="newAdmin" class="field" placeholder="new admin key"><button class="glassy-btn" id="doChangeAdmin">Change</button></div><div id="changeRes" style="margin-top:8px"></div>`;
+    el('doChangeAdmin').addEventListener('click', async ()=>{
+      const cur = el('curAdmin').value.trim();
+      const nw = el('newAdmin').value.trim();
+      if(!cur || !nw) return alert('both');
+      try{
+        const res = await fetch('/api/admin/change_key',{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key': cur},body:JSON.stringify({new_key: nw})});
+        const j = await res.json();
+        el('changeRes').textContent = j.ok ? 'Changed' : (j.error || 'error');
+        if(j.ok){
+          state.adminKey = nw;
+          state.adminLogged = true;
+        }
+      }catch(e){
+        el('changeRes').textContent = 'network error';
+      }
+    });
+  } else if(tab === 'back'){
+    showPage('homePage');
+  }
+}
+
+async function doAdminLogin(){
+  const k = el('adminKeyInput').value.trim();
+  if(!k) return alert('enter key');
+  try{
+    const res = await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_key:k})});
+    const j = await res.json();
+    if(j.ok){
+      state.adminKey = k;
+      state.adminLogged = true;
+      el('adminContent').innerHTML = '<div class="fade-in"><b>Admin logged</b><div class="muted">Choose Create Key or Active Keys.</div></div>';
+    } else {
+      alert(j.error || 'invalid');
+    }
+  } catch(e){
+    alert('network error');
+  }
+}
+
+async function ensureAdmin(){
+  if(state.adminLogged && state.adminKey) return;
+  const k = prompt('Admin key:');
+  if(!k) throw 'no';
+  try{
+    const res = await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_key:k})});
+    const j = await res.json();
+    if(j.ok){
+      state.adminKey = k;
+      state.adminLogged = true;
+    } else {
+      throw j.error || 'invalid';
+    }
+  } catch(e){
+    alert('admin login required');
+    throw e;
+  }
+}
+
+el('openAdminTop').addEventListener('click', ()=>{
+  showPage('adminPage');
+  loadAdminTab('login');
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && document.activeElement === el('textIn')) sendText();
+});
+
+</script>
+</body>
+</html>
