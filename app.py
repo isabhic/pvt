@@ -70,7 +70,6 @@ def admin_login():
 
 @app.route("/api/admin/get_keys", methods=["GET"])
 def admin_get_keys():
-    # simple auth by admin_key in header
     admin_key = request.headers.get("X-Admin-Key","")
     conn = get_db()
     row = conn.execute("SELECT admin_key FROM admin LIMIT 1").fetchone()
@@ -79,7 +78,6 @@ def admin_get_keys():
         return jsonify({"ok": False, "error": "unauthorized"}), 401
     cur = conn.cursor()
     ks = [dict(r) for r in cur.execute("SELECT key_text, created_at FROM keys ORDER BY created_at DESC").fetchall()]
-    # attach active devices per key
     out = []
     for k in ks:
         devices = [dict(d) for d in cur.execute("SELECT device_id,name,last_seen FROM devices WHERE key_text=?",(k["key_text"],)).fetchall()]
@@ -112,7 +110,6 @@ def admin_create_key():
 
 @app.route("/api/admin/change_key", methods=["POST"])
 def admin_change_key():
-    # change admin key (current required)
     data = request.json or {}
     admin_key = request.headers.get("X-Admin-Key","")
     conn = get_db()
@@ -140,17 +137,14 @@ def join_room():
     if not name or not key or not device:
         return jsonify({"ok": False, "error": "missing params"}), 400
     conn = get_db(); cur = conn.cursor()
-    # does key exist?
     k = cur.execute("SELECT key_text FROM keys WHERE key_text=?",(key,)).fetchone()
     if not k:
         conn.close()
         return jsonify({"ok": False, "error": "invalid key"}), 404
-    # gather devices for key
     devs = [d["device_id"] for d in cur.execute("SELECT device_id FROM devices WHERE key_text=?",(key,)).fetchall()]
     if device not in devs and len(devs) >= 2:
         conn.close()
         return jsonify({"ok": False, "error": "room full (2 devices max)"}), 403
-    # insert or update device
     cur.execute("SELECT id FROM devices WHERE device_id=? AND key_text=?", (device, key))
     if cur.fetchone():
         cur.execute("UPDATE devices SET name=?, last_seen=? WHERE device_id=? AND key_text=?", (name, int(time.time()), device, key))
@@ -216,6 +210,7 @@ def ping_device():
 def index():
     return render_template("index.html")
 
+# ✅ Render-compatible run code
 if __name__ == "__main__":
-    print("Starting PVT server on http://127.0.0.1:5000")
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
